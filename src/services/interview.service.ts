@@ -11,6 +11,7 @@ import type {
   UpdateInterviewInput,
   InterviewQuery,
 } from '@/validators/interview.validator';
+import crypto from 'crypto';
 
 // ─── Domain Error ─────────────────────────────────────────────
 
@@ -43,7 +44,8 @@ function toResult(interview: IInterview): InterviewResult {
     status: interview.status,
     notes: interview.notes || undefined,
     createdBy: String(interview.createdBy),
-    inviteToken: interview.inviteToken,
+    inviteToken: interview.inviteToken || undefined,
+    inviteTokenExpiresAt: interview.inviteTokenExpiresAt || undefined,
     createdAt: interview.createdAt,
     updatedAt: interview.updatedAt,
   };
@@ -212,4 +214,21 @@ export async function deleteInterview(
 ): Promise<void> {
   const interview = await findOwnedInterview(recruiterId, interviewId);
   await interview.deleteOne();
+}
+
+// Generate a unique invitation token with expiry
+export async function generateInviteToken(
+  recruiterId: string,
+  interviewId: string,
+): Promise<{ inviteToken: string; inviteTokenExpiresAt: Date }> {
+  const interview = await findOwnedInterview(recruiterId, interviewId);
+
+  const inviteToken = crypto.randomBytes(32).toString('hex');
+  const inviteTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+  interview.inviteToken = inviteToken;
+  interview.inviteTokenExpiresAt = inviteTokenExpiresAt;
+  await interview.save();
+
+  return { inviteToken, inviteTokenExpiresAt };
 }

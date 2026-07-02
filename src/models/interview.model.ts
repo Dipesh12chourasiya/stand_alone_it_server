@@ -13,10 +13,11 @@ export interface IInterview extends Document {
   date: Date;
   time: string;
   duration: number;
-  status: 'Scheduled' | 'Completed' | 'Cancelled';
+  status: 'Pending' | 'Scheduled' | 'InProgress' | 'Completed' | 'Cancelled';
   notes?: string;
   createdBy: mongoose.Types.ObjectId;
-  inviteToken: string;
+  inviteToken?: string;
+  inviteTokenExpiresAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -31,7 +32,9 @@ export const MEETING_PLATFORMS = [
 ] as const;
 
 export const INTERVIEW_STATUSES = [
+  'Pending',
   'Scheduled',
+  'InProgress',
   'Completed',
   'Cancelled',
 ] as const;
@@ -98,7 +101,7 @@ const interviewSchema = new Schema<IInterview>(
       type: String,
       enum: {
         values: INTERVIEW_STATUSES,
-        message: 'Status must be one of: Scheduled, Completed, Cancelled',
+        message: 'Status must be one of: Pending, Scheduled, InProgress, Completed, Cancelled',
       },
       default: 'Scheduled',
     },
@@ -115,9 +118,13 @@ const interviewSchema = new Schema<IInterview>(
     },
     inviteToken: {
       type: String,
-      default: () => crypto.randomBytes(24).toString('hex'),
       unique: true,
       index: true,
+      sparse: true,
+    },
+    inviteTokenExpiresAt: {
+      type: Date,
+      default: null,
     },
   },
   {

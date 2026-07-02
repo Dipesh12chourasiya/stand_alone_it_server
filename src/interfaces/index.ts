@@ -40,7 +40,8 @@ export interface InterviewResult {
   status: string;
   notes?: string;
   createdBy: string;
-  inviteToken: string;
+  inviteToken?: string;
+  inviteTokenExpiresAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }

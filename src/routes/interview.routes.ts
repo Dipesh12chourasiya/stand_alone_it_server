@@ -27,4 +27,7 @@ router.patch('/:id', validate(updateInterviewSchema), interviewController.update
 // DELETE /api/v1/interviews/:id  —  Delete an interview
 router.delete('/:id', interviewController.remove);
 
+// POST /api/v1/interviews/:id/generate-invite  —  Generate invitation token
+router.post('/:id/generate-invite', interviewController.generateInvite);
+
 export default router;

@@ -6,6 +6,8 @@ import cookieParser from 'cookie-parser';
 import { env } from '@/config/env';
 import authRoutes from '@/routes/auth.routes';
 import interviewRoutes from '@/routes/interview.routes';
+import dashboardRoutes from '@/routes/dashboard.routes';
+import candidateRoutes from '@/routes/candidate.routes';
 import { errorHandler } from '@/middlewares/error-handler';
 
 const app = express();
@@ -36,6 +38,8 @@ app.get('/api/health', (_req, res) => {
 // routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/interviews', interviewRoutes);
+app.use('/api/v1/dashboard', dashboardRoutes);
+app.use('/api/v1/candidate', candidateRoutes);
 
 app.use(errorHandler);
 

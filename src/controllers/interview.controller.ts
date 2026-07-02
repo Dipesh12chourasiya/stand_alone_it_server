@@ -121,3 +121,27 @@ export async function remove(
     next(error);
   }
 }
+
+/**
+ * POST /api/v1/interviews/:id/generate-invite
+ *
+ * Generate a unique invitation token for an interview.
+ */
+export async function generateInvite(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const interviewId = objectIdSchema.parse(req.params.id);
+
+    const result = await interviewService.generateInviteToken(
+      req.recruiterId!,
+      interviewId,
+    );
+
+    sendSuccess(res, result, 'Invitation token generated successfully.');
+  } catch (error) {
+    next(error);
+  }
+}

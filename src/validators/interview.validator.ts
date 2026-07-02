@@ -3,7 +3,7 @@ import { z } from 'zod/v4';
 // ─── Enum values (defined inline for Zod v4 compatibility) ───
 
 const PLATFORM_VALUES = ['Google Meet', 'Microsoft Teams', 'Zoom', 'Other'] as const;
-const STATUS_VALUES = ['Scheduled', 'Completed', 'Cancelled'] as const;
+const STATUS_VALUES = ['Pending', 'Scheduled', 'InProgress', 'Completed', 'Cancelled'] as const;
 const SORT_VALUES = ['newest', 'oldest', 'date'] as const;
 
 // ─── Create ──────────────────────────────────────────────────
@@ -110,7 +110,7 @@ export const updateInterviewSchema = z.object({
 
   status: z
     .enum([...STATUS_VALUES] as [string, ...string[]], {
-      message: 'Status must be one of: Scheduled, Completed, Cancelled',
+      message: 'Status must be one of: Pending, Scheduled, InProgress, Completed, Cancelled',
     })
     .optional(),
 
@@ -128,7 +128,7 @@ export const interviewQuerySchema = z.object({
   search: z.string().optional(),
   status: z
     .enum([...STATUS_VALUES] as [string, ...string[]], {
-      message: 'Status must be one of: Scheduled, Completed, Cancelled',
+      message: 'Status must be one of: Pending, Scheduled, InProgress, Completed, Cancelled',
     })
     .optional(),
   platform: z
