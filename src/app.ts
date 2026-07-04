@@ -8,6 +8,9 @@ import authRoutes from '@/routes/auth.routes';
 import interviewRoutes from '@/routes/interview.routes';
 import dashboardRoutes from '@/routes/dashboard.routes';
 import candidateRoutes from '@/routes/candidate.routes';
+import phoneRoutes from '@/routes/phone.routes';
+import timelineRoutes from '@/features/timeline/routes/timeline.routes';
+import reportRoutes from '@/features/reports/routes/report.routes';
 import { errorHandler } from '@/middlewares/error-handler';
 
 const app = express();
@@ -40,6 +43,9 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/interviews', interviewRoutes);
 app.use('/api/v1/dashboard', dashboardRoutes);
 app.use('/api/v1/candidate', candidateRoutes);
+app.use('/api/v1/phone', phoneRoutes);
+app.use('/api/v1/timeline', timelineRoutes);
+app.use('/api/v1/reports', reportRoutes);
 
 app.use(errorHandler);
 
