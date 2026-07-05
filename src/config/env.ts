@@ -24,5 +24,5 @@ export const env = {
    */
   JWT_ACCESS_EXPIRES_IN: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
 
-  CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:3000',
+  CLIENT_URL: process.env.CLIENT_URL || 'https://stand-alone-it-client-lac.vercel.app',
 } as const;

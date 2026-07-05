@@ -15,12 +15,28 @@ import { errorHandler } from '@/middlewares/error-handler';
 
 const app = express();
 
+// Trust Render's proxy so client IP / protocol are correct
+app.set('trust proxy', 1);
+
 // middlewares
 app.use(helmet());
 
+// Allow both local dev and the deployed Vercel frontend
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://stand-alone-it-client-lac.vercel.app',
+];
+
 app.use(
   cors({
-    origin: env.CLIENT_URL,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (server-to-server, curl, mobile apps, Postman, etc.)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
     credentials: true,
   }),
 );

@@ -17,7 +17,10 @@ let io: Server | null = null;
 export function createSocketServer(httpServer: HttpServer): Server {
   io = new Server(httpServer, {
     cors: {
-      origin: env.CLIENT_URL,
+      origin: [
+        'http://localhost:3000',
+        'https://stand-alone-it-client-lac.vercel.app',
+      ],
       methods: ['GET', 'POST'],
       credentials: true,
     },
