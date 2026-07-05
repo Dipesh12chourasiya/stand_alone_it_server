@@ -24,6 +24,8 @@ export function registerPhoneHandlers(socket: Socket): void {
     }) => {
       const { sessionToken, deviceInfo, interviewId: providedInterviewId } = payload;
 
+      console.log(`[Server] Phone join-session: token=${sessionToken?.slice(0, 8)}..., interviewId=${providedInterviewId || '(DB lookup)'}`);
+
       if (!sessionToken || typeof sessionToken !== 'string') {
         socket.emit('error', { message: 'Invalid session token' });
         return;
@@ -34,6 +36,7 @@ export function registerPhoneHandlers(socket: Socket): void {
 
       // Join the session room (phone-specific room)
       socket.join(`session:${sessionToken}`);
+      console.log(`[Server] Phone joined session:${sessionToken.slice(0, 8)}...`);
 
       // If interviewId was provided in the payload, use it directly.
       // Otherwise fall back to a DB lookup.
@@ -44,8 +47,10 @@ export function registerPhoneHandlers(socket: Socket): void {
           const session = await PhoneSession.findOne({ sessionToken });
           if (session) {
             interviewId = String(session.interviewId);
+            console.log(`[Server] Resolved interviewId from DB: ${interviewId}`);
           }
         } catch {
+          console.warn('[Server] DB lookup failed for phone:join-session');
           // DB lookup failed — session room join remains intact
         }
       }
@@ -53,6 +58,9 @@ export function registerPhoneHandlers(socket: Socket): void {
       if (interviewId) {
         socket.join(`interview:${interviewId}`);
         authSocket.data.interviewId = interviewId;
+        console.log(`[Server] Phone joined interview:${interviewId}`);
+      } else {
+        console.warn('[Server] No interviewId — phone NOT joined to interview room');
       }
 
       // Store device info
@@ -72,6 +80,7 @@ export function registerPhoneHandlers(socket: Socket): void {
         : null;
 
       if (interviewRoom) {
+        console.log(`[Server] Notifying recruiter(s) in ${interviewRoom}`);
         socket.to(interviewRoom).emit(PHONE_EVENTS.PHONE_CONNECTED, {
           connectedAt: new Date().toISOString(),
           deviceInfo,

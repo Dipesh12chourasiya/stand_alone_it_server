@@ -23,8 +23,12 @@ export function registerWebRTCHandlers(socket: Socket): void {
     WEBRTC_EVENTS.OFFER,
     (payload: { sdp: unknown }) => {
       const { sdp } = payload;
+      const role = socket.data.role || 'unknown';
+
+      console.log(`[WebRTC Server] Offer received from ${role}`);
 
       if (!sdp) {
+        console.warn('[WebRTC Server] Invalid offer: missing SDP');
         socket.emit(WEBRTC_EVENTS.NEGOTIATION_FAILED, {
           message: 'Invalid offer: missing SDP',
         });
@@ -33,12 +37,14 @@ export function registerWebRTCHandlers(socket: Socket): void {
 
       const room = getTargetRoom();
       if (!room) {
+        console.warn('[WebRTC Server] Cannot route offer: no interview room for', socket.data.interviewId);
         socket.emit(WEBRTC_EVENTS.NEGOTIATION_FAILED, {
           message: 'Cannot route offer: no interview room joined',
         });
         return;
       }
 
+      console.log(`[WebRTC Server] Forwarding offer to room: ${room}`);
       // Forward to everyone else in the interview room
       socket.to(room).emit(WEBRTC_EVENTS.OFFER_FORWARD, {
         sdp,
@@ -53,8 +59,12 @@ export function registerWebRTCHandlers(socket: Socket): void {
     WEBRTC_EVENTS.ANSWER,
     (payload: { sdp: unknown }) => {
       const { sdp } = payload;
+      const role = socket.data.role || 'unknown';
+
+      console.log(`[WebRTC Server] Answer received from ${role}`);
 
       if (!sdp) {
+        console.warn('[WebRTC Server] Invalid answer: missing SDP');
         socket.emit(WEBRTC_EVENTS.NEGOTIATION_FAILED, {
           message: 'Invalid answer: missing SDP',
         });
@@ -63,12 +73,14 @@ export function registerWebRTCHandlers(socket: Socket): void {
 
       const room = getTargetRoom();
       if (!room) {
+        console.warn('[WebRTC Server] Cannot route answer: no interview room for', socket.data.interviewId);
         socket.emit(WEBRTC_EVENTS.NEGOTIATION_FAILED, {
           message: 'Cannot route answer: no interview room joined',
         });
         return;
       }
 
+      console.log(`[WebRTC Server] Forwarding answer to room: ${room}`);
       socket.to(room).emit(WEBRTC_EVENTS.ANSWER_FORWARD, {
         sdp,
         fromRole: socket.data.role,
@@ -82,6 +94,7 @@ export function registerWebRTCHandlers(socket: Socket): void {
     WEBRTC_EVENTS.ICE_CANDIDATE,
     (payload: { candidate: unknown }) => {
       const { candidate } = payload;
+      const role = socket.data.role || 'unknown';
 
       if (!candidate) {
         // Ignore empty candidates (end-of-candidates marker)
@@ -89,8 +102,12 @@ export function registerWebRTCHandlers(socket: Socket): void {
       }
 
       const room = getTargetRoom();
-      if (!room) return;
+      if (!room) {
+        console.warn('[WebRTC Server] Cannot route ICE candidate: no room');
+        return;
+      }
 
+      console.log(`[WebRTC Server] Forwarding ICE candidate from ${role}`);
       socket.to(room).emit(WEBRTC_EVENTS.ICE_CANDIDATE_FORWARD, {
         candidate,
         fromRole: socket.data.role,
