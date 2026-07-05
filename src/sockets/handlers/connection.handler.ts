@@ -1,6 +1,7 @@
 import { type Socket } from 'socket.io';
 import { SOCKET_EVENTS, INTERVIEW_EVENTS } from '@/sockets/events';
 import type { AuthSocket } from '@/sockets/utils/types';
+import { cleanupParticipant } from '@/sockets/handlers/interview.handler';
 
 /**
  * Register heartbeat ping-pong for a socket.
@@ -46,6 +47,9 @@ export function onConnection(socket: AuthSocket): void {
  */
 export function onDisconnect(socket: AuthSocket): void {
   const { interviewId, role, recruiterId, sessionToken } = socket.data;
+
+  // Clean up participant tracker
+  cleanupParticipant(socket);
 
   if (interviewId) {
     const leaveEvent =

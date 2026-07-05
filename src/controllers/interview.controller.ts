@@ -145,3 +145,28 @@ export async function generateInvite(
     next(error);
   }
 }
+
+/**
+ * POST /api/v1/interviews/:id/join
+ *
+ * Recruiter explicitly joins an interview for the WebRTC session.
+ * Creates/updates the waiting room and signals the candidate's waiting page.
+ */
+export async function joinInterview(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const interviewId = objectIdSchema.parse(req.params.id);
+
+    const result = await interviewService.joinInterview(
+      req.recruiterId!,
+      interviewId,
+    );
+
+    sendSuccess(res, result, 'Recruiter joined interview successfully.');
+  } catch (error) {
+    next(error);
+  }
+}

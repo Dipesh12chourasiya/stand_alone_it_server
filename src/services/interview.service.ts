@@ -4,6 +4,7 @@ import {
   type MeetingPlatform,
   type InterviewStatus,
 } from '@/models/interview.model';
+import { WaitingRoom } from '@/models/waiting-room.model';
 import { HTTP_STATUS } from '@/constants';
 import type { InterviewResult, PaginatedResult } from '@/interfaces';
 import type {
@@ -12,6 +13,7 @@ import type {
   InterviewQuery,
 } from '@/validators/interview.validator';
 import crypto from 'crypto';
+import { getIO } from '@/sockets/socketServer';
 
 // ─── Domain Error ─────────────────────────────────────────────
 
@@ -231,4 +233,58 @@ export async function generateInviteToken(
   await interview.save();
 
   return { inviteToken, inviteTokenExpiresAt };
+}
+
+// ─── Recruiter Joins Interview ──────────────────────────────────
+
+/**
+ * Recruiter explicitly joins an interview for WebRTC session.
+ *
+ * Validates ownership, updates WaitingRoom status to RecruiterJoined,
+ * and returns the interview data needed for the socket/WebRTC connection.
+ */
+export async function joinInterview(
+  recruiterId: string,
+  interviewId: string,
+): Promise<{
+  id: string;
+  title: string;
+  candidateName: string;
+  waitingRoomStatus: string;
+}> {
+  const interview = await findOwnedInterview(recruiterId, interviewId);
+
+  // Create or update the waiting room
+  let waitingRoom = await WaitingRoom.findOne({ interviewId: interview._id });
+
+  if (!waitingRoom) {
+    // No waiting room yet — candidate hasn't joined. Create it.
+    waitingRoom = await WaitingRoom.create({
+      interviewId: interview._id,
+      status: 'Waiting',
+    });
+  }
+
+  // Update waiting room status
+  waitingRoom.status = 'RecruiterJoined';
+  waitingRoom.recruiterJoinedAt = new Date();
+  await waitingRoom.save();
+
+  // Notify via socket if candidate is already waiting
+  try {
+    const io = getIO();
+    io.to(`interview:${interviewId}`).emit('waiting-room:status-update', {
+      status: 'RecruiterJoined',
+      recruiterJoinedAt: waitingRoom.recruiterJoinedAt,
+    });
+  } catch {
+    // Socket.IO not initialized yet — that's fine for REST call
+  }
+
+  return {
+    id: String(interview._id),
+    title: interview.title,
+    candidateName: interview.candidateName,
+    waitingRoomStatus: waitingRoom.status,
+  };
 }

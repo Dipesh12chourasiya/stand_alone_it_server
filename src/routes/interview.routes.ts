@@ -30,4 +30,7 @@ router.delete('/:id', interviewController.remove);
 // POST /api/v1/interviews/:id/generate-invite  —  Generate invitation token
 router.post('/:id/generate-invite', interviewController.generateInvite);
 
+// POST /api/v1/interviews/:id/join  —  Recruiter joins the interview (WebRTC session)
+router.post('/:id/join', interviewController.joinInterview);
+
 export default router;

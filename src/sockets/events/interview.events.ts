@@ -14,4 +14,7 @@ export const INTERVIEW_EVENTS = {
   // Participant tracking
   PARTICIPANT_JOINED: 'interview:participant-joined',
   PARTICIPANT_LEFT: 'interview:participant-left',
+
+  // Both participants ready
+  BOTH_PARTICIPANTS_READY: 'interview:both-ready',
 } as const;
