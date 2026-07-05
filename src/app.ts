@@ -21,10 +21,11 @@ app.set('trust proxy', 1);
 // middlewares
 app.use(helmet());
 
-// Allow both local dev and the deployed Vercel frontend
+// Allow local dev and the deployed frontend (configured via CLIENT_URL env)
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://stand-alone-it-client-lac.vercel.app',
+  'http://localhost:5173',
+  env.CLIENT_URL,
 ];
 
 app.use(

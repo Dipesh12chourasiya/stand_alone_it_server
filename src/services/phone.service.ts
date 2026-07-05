@@ -39,25 +39,27 @@ export async function createPhoneSession(
     );
   }
 
-  // Find an existing active session for this interview
-  const existing = await PhoneSession.findOne({
-    interviewId,
-    status: { $in: ['Pending', 'Connected'] },
-    expiresAt: { $gt: new Date() },
-  });
+  // Extend expiry on an existing active session, if one exists
+  const existing = await PhoneSession.findOneAndUpdate(
+    {
+      interviewId,
+      status: { $in: ['Pending', 'Connected'] },
+      expiresAt: { $gt: new Date() },
+    },
+    { $set: { expiresAt: new Date(Date.now() + 10 * 60 * 1000) } },
+    { new: true },
+  );
 
   if (existing) {
-    // Reuse any still-valid session — returns the same token/QR
     return toResult(existing);
   }
 
-  // Mark any stale sessions as expired before creating a new one
+  // No valid existing session — expire any stale ones, then create fresh
   await PhoneSession.updateMany(
     { interviewId, status: { $ne: 'Expired' } },
     { $set: { status: 'Expired' as const } },
   );
 
-  // Generate a secure random token
   const sessionToken = crypto.randomBytes(32).toString('hex');
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 

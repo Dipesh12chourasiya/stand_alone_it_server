@@ -46,7 +46,7 @@ const phoneSessionSchema = new Schema<IPhoneSession>(
       type: String,
       required: true,
       unique: true,
-      index: true,
+      // unique: true already creates an index — no field-level index needed
     },
     expiresAt: {
       type: Date,

@@ -19,7 +19,8 @@ export function createSocketServer(httpServer: HttpServer): Server {
     cors: {
       origin: [
         'http://localhost:3000',
-        'https://stand-alone-it-client-lac.vercel.app',
+        'http://localhost:5173',
+        env.CLIENT_URL,
       ],
       methods: ['GET', 'POST'],
       credentials: true,

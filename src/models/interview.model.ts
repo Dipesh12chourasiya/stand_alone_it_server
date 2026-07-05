@@ -119,8 +119,8 @@ const interviewSchema = new Schema<IInterview>(
     inviteToken: {
       type: String,
       unique: true,
-      index: true,
       sparse: true,
+      // unique: true already creates a sparse unique index — no field-level index needed
     },
     inviteTokenExpiresAt: {
       type: Date,
