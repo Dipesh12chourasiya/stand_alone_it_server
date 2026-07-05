@@ -76,13 +76,13 @@ const reportSchema = new Schema<IReport>(
       type: Schema.Types.ObjectId,
       ref: 'Interview',
       required: true,
-      index: true,
+      // Unique index is defined via schema.index() below — no field-level index
     },
     recruiterId: {
       type: Schema.Types.ObjectId,
       ref: 'Recruiter',
       required: true,
-      index: true,
+      // Compound indexes including recruiterId are defined via schema.index() below
     },
     interview: {
       title: { type: String, required: true },

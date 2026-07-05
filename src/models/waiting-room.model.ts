@@ -26,7 +26,6 @@ const waitingRoomSchema = new Schema<IWaitingRoom>(
       ref: 'Interview',
       required: true,
       unique: true,
-      index: true,
     },
     status: {
       type: String,

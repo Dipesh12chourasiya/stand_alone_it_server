@@ -51,7 +51,7 @@ const phoneSessionSchema = new Schema<IPhoneSession>(
     expiresAt: {
       type: Date,
       required: true,
-      index: true,
+      // TTL index is defined via schema.index() below — no field-level index
     },
     status: {
       type: String,

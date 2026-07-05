@@ -22,7 +22,6 @@ const deviceVerificationSchema = new Schema<IDeviceVerification>(
       ref: 'Interview',
       required: true,
       unique: true,
-      index: true,
     },
     cameraPermission: {
       type: Boolean,

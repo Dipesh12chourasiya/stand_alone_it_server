@@ -114,7 +114,7 @@ const interviewSchema = new Schema<IInterview>(
       type: Schema.Types.ObjectId,
       ref: 'Recruiter',
       required: true,
-      index: true,
+      // Compound indexes including createdBy are defined via schema.index() below
     },
     inviteToken: {
       type: String,

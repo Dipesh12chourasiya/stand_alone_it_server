@@ -204,10 +204,41 @@ export async function getActiveSession(interviewId: string, recruiterId: string)
 
 // ─── Helper ────────────────────────────────────────────────────
 
-function toResult(session: IPhoneSession) {
+interface SessionResult {
+  id: string;
+  interviewId: string | { _id: string; title: string; candidateName: string; date: Date; time: string; duration: number };
+  sessionToken: string;
+  expiresAt: Date;
+  status: string;
+  phoneConnectedAt?: Date;
+  phoneDisconnectedAt?: Date;
+  deviceInfo?: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+function toResult(session: IPhoneSession): SessionResult {
+  const rawInterviewId = session.interviewId;
+
+  // When populate() is used, interviewId is a populated document, not a plain ObjectId.
+  // In that case return the populated shape so the API response matches SessionWithInterview.
+  const interviewId =
+    typeof rawInterviewId === 'object' &&
+    rawInterviewId !== null &&
+    '_id' in rawInterviewId
+      ? {
+          _id: String((rawInterviewId as { _id: unknown })._id),
+          title: (rawInterviewId as { title?: string }).title ?? '',
+          candidateName: (rawInterviewId as { candidateName?: string }).candidateName ?? '',
+          date: (rawInterviewId as { date?: Date }).date ?? new Date(0),
+          time: (rawInterviewId as { time?: string }).time ?? '',
+          duration: (rawInterviewId as { duration?: number }).duration ?? 0,
+        }
+      : String(rawInterviewId);
+
   return {
     id: String(session._id),
-    interviewId: String(session.interviewId),
+    interviewId,
     sessionToken: session.sessionToken,
     expiresAt: session.expiresAt,
     status: session.status,

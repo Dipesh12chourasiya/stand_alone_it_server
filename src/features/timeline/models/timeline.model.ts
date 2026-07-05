@@ -22,7 +22,7 @@ const timelineSchema = new Schema<ITimeline>(
       type: Schema.Types.ObjectId,
       ref: 'Interview',
       required: [true, 'Session (interview) ID is required'],
-      index: true,
+      // Compound indexes including sessionId are defined via schema.index() below
     },
     eventType: {
       type: String,
