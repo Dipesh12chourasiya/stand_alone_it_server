@@ -34,7 +34,6 @@ const phoneSessionSchema = new Schema<IPhoneSession>(
       type: Schema.Types.ObjectId,
       ref: 'Interview',
       required: true,
-      unique: true,
       index: true,
     },
     recruiterId: {
